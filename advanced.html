@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Document Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+        }
+        .header {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 18px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .viewer-container {
+            width: 90%;
+            max-width: 1000px;
+            height: calc(100vh - 120px);
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        .pdf-viewer { width: 100%; height: 100%; border: none; }
+        .error-msg {
+            display: none;
+            padding: 20px;
+            color: #d9534f;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-top: 50px;
+        }
+        @media (max-width: 768px) {
+            .header { padding: 15px; font-size: 1rem; margin-bottom: 15px; }
+            .viewer-container { width: 95%; height: calc(100vh - 90px); margin-bottom: 15px; border-radius: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">Official Document Verification Portal</div>
+
+    <div class="viewer-container" id="viewer-box">
+        <iframe class="pdf-viewer" id="my-pdf-viewer" src=""></iframe>
+    </div>
+
+    <div class="error-msg" id="error-box">Invalid or Tampered Document Link!</div>
+
+    <script>
+        const SALT = "NH_SECURE_KEY_";
+
+        // URL parsing
+        const urlParams = new URLSearchParams(window.location.search);
+        const encryptedKey = urlParams.get('key');
+
+        const pdfViewer = document.getElementById('my-pdf-viewer');
+        const viewerBox = document.getElementById('viewer-box');
+        const errorBox = document.getElementById('error-box');
+
+        if (encryptedKey) {
+            try {
+                // Decrypt from Base64
+                const decryptedText = atob(encryptedKey);
+
+                // Verify the Salt key for extra integrity checks
+                if (decryptedText.startsWith(SALT)) {
+                    // Extract real document file name
+                    const realDocName = decryptedText.replace(SALT, "");
+
+                    // Target path where you put your PDFs (e.g. dynamic files in 'docs/' directory)
+                    const pdfFolder = "docs/"; 
+                    
+                    // Injecting source file cleanly
+                    pdfViewer.src = pdfFolder + realDocName + "#toolbar=0&navpanes=0";
+                } else {
+                    showError();
+                }
+            } catch (e) {
+                showError(); // If decryption fails (tampered link)
+            }
+        } else {
+            showError();
+        }
+
+        function showError() {
+            viewerBox.style.display = 'none';
+            errorBox.style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
