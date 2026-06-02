@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Official Document Verification</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         body, html {
@@ -15,17 +14,27 @@
             background-color: #ffffff; /* একদম পরিষ্কার সাদা ব্যাকগ্রাউন্ড */
         }
         
-        /* আপনার স্ক্রিনশটের আইডি কার্ডের সাথে ১০০% ম্যাচ করা শ্যাডো এবং সাইজ */
+        /* কন্টেইনারের ওপর এবং দুপাশের স্পেসিং নিখুঁত করার জন্য */
+        .page-wrapper {
+            width: 100%;
+            padding-top: 8vh; /* ওপর থেকে ঠিক ৮% জায়গা খালি থাকবে */
+            padding-left: 18vw; /* বাম পাশে ১৮% জায়গা খালি */
+            padding-right: 18vw; /* ডান পাশে ১৮% জায়গা খালি */
+            padding-bottom: 8vh; /* নিচেও সামঞ্জস্যপূর্ণ গ্যাপ */
+            box-sizing: border-box;
+        }
+
+        /* কার্ডের স্টাইল: গাঢ় শ্যাডো এবং রাউন্ডেড কর্নার */
         .id-card-style {
-            width: 92%; /* মোবাইলের দুই পাশে সুন্দর এবং সমান ফাঁকা জায়গা রাখবে */
-            max-width: 430px; /* কার্ডের অরিজিনাল চওড়া সাইজ ধরে রাখার জন্য */
+            width: 100%; /* দুপাশের ১৮% বাদে বাকি পুরো জায়গা জুড়ে বড় আকারে থাকবে */
             height: auto;
-            border-radius: 18px; /* স্ক্রিনশটের মতো নিখুঁত রাউন্ডেড কর্নার */
+            border-radius: 20px; /* নিখুঁত রাউন্ডেড কর্নার */
             
-            /* বামে ও নিচে নিখুঁত রিয়েলস্টিক আইডি কার্ড শ্যাডো (Soft Blur Shadow) */
-            box-shadow: -8px 12px 16px rgba(0, 0, 0, 0.12), -2px 4px 6px rgba(0, 0, 0, 0.06);
+            /* আপনার রিকোয়ারমেন্ট অনুযায়ী অত্যন্ত স্পষ্ট ও গাঢ় থ্রিডি শ্যাডো */
+            box-shadow: -12px 18px 24px rgba(0, 0, 0, 0.28), 
+                        -4px 6px 12px rgba(0, 0, 0, 0.15);
             
-            border: 1px solid rgba(0, 0, 0, 0.06); /* হালকা বর্ডার */
+            border: 1px solid rgba(0, 0, 0, 0.12); /* শ্যাডোর সাথে মিল রেখে বর্ডারও কিছুটা স্পষ্ট করা হয়েছে */
             display: block;
         }
 
@@ -34,18 +43,14 @@
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-start pt-6 pb-12">
+<body class="flex flex-col items-center justify-start">
 
-    <!-- Card Container (২টি কার্ডের মাঝখানের গ্যাপ স্ক্রিনশটের মতো নিখুঁত করা হয়েছে) -->
-    <div id="card-container" class="hidden w-full flex flex-col items-center gap-6">
-        <!-- ফ্রন্ট পেজ (সামনের অংশ) -->
+    <div id="card-container" class="hidden page-wrapper flex flex-col items-center gap-10">
         <img id="card-front" class="id-card-style" alt="Card Front">
         
-        <!-- ব্যাক পেজ (পেছনের অংশ) -->
         <img id="card-back" class="id-card-style" alt="Card Back">
     </div>
 
-    <!-- Error Message Card -->
     <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center my-auto m-4">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
