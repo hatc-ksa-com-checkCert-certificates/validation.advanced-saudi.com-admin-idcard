@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Official Document Verification</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         body, html {
@@ -11,32 +12,41 @@
             padding: 0;
             width: 100%;
             min-height: 100%;
-            background-color: #ffffff;
+            background-color: #ffffff; /* একদম পরিষ্কার সাদা ব্যাকগ্রাউন্ড */
         }
-        /* কার্ডের চারপাশের নিখুঁত থ্রিডি ড্রপ শ্যাডো ও রাউন্ডেড কর্নার */
+        
+        /* আপনার স্ক্রিনশটের আইডি কার্ডের সাথে ১০০% ম্যাচ করা শ্যাডো এবং সাইজ */
         .id-card-style {
-            width: 100%;
-            max-width: 480px;
+            width: 92%; /* মোবাইলের দুই পাশে সুন্দর এবং সমান ফাঁকা জায়গা রাখবে */
+            max-width: 430px; /* কার্ডের অরিজিনাল চওড়া সাইজ ধরে রাখার জন্য */
             height: auto;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 18px; /* স্ক্রিনশটের মতো নিখুঁত রাউন্ডেড কর্নার */
+            
+            /* বামে ও নিচে নিখুঁত রিয়েলস্টিক আইডি কার্ড শ্যাডো (Soft Blur Shadow) */
+            box-shadow: -8px 12px 16px rgba(0, 0, 0, 0.12), -2px 4px 6px rgba(0, 0, 0, 0.06);
+            
+            border: 1px solid rgba(0, 0, 0, 0.06); /* হালকা বর্ডার */
             display: block;
         }
+
         .error-card { 
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); 
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-start py-10 px-4">
+<body class="flex flex-col items-center justify-start pt-6 pb-12">
 
-    <div id="card-container" class="hidden w-full flex flex-col items-center gap-10">
+    <!-- Card Container (২টি কার্ডের মাঝখানের গ্যাপ স্ক্রিনশটের মতো নিখুঁত করা হয়েছে) -->
+    <div id="card-container" class="hidden w-full flex flex-col items-center gap-6">
+        <!-- ফ্রন্ট পেজ (সামনের অংশ) -->
         <img id="card-front" class="id-card-style" alt="Card Front">
         
+        <!-- ব্যাক পেজ (পেছনের অংশ) -->
         <img id="card-back" class="id-card-style" alt="Card Back">
     </div>
 
-    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center my-auto">
+    <!-- Error Message Card -->
+    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center my-auto m-4">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
@@ -64,7 +74,7 @@
             }
         }
 
-        // এক্সটেনশন ভুল হলেও ইমেজ লোড করানোর অটো-ডিটেক্ট মেথড
+        // অটোমেটিক এক্সটেনশন চেকার মেথড
         function tryLoadingImage(imgElement, baseName, suffix) {
             const extensions = ['jpg', 'png', 'jpeg', 'JPG', 'PNG'];
             let index = 0;
@@ -76,7 +86,6 @@
                 }
             }
 
-            // যদি কোনো এক্সটেনশনে ইমেজ না পায়, তবে পরের এক্সটেনশন ট্রাই করবে
             imgElement.onerror = tryNext;
             tryNext();
         }
@@ -94,7 +103,6 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    // ফ্রন্ট এবং ব্যাক পেজের ছবি খোঁজা শুরু করা হচ্ছে
                     tryLoadingImage(frontImg, fileName, 'front');
                     tryLoadingImage(backImg, fileName, 'back');
                     
