@@ -6,25 +6,41 @@
     <title>Official Document Verification</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        body { background-color: #f0f4f8; }
-        .error-card { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #f0f4f8;
+        }
+        /* PDF ভিউয়ারটি পুরো স্ক্রিন জুড়ে রাখার জন্য */
+        .pdf-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .error-card { 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); 
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen">
 
-    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100">
-        <div class="h-2 bg-red-500"></div>
-        <div class="p-8 text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                </svg>
-            </div>
-            <h1 class="text-xl font-bold text-slate-800 mb-2">Verification Failure</h1>
-            <p class="text-sm text-gray-500 leading-relaxed">
-                No secure file parameter specified or matching identity missing from target path. Verification void.
-            </p>
+    <div id="pdf-viewer" class="w-full h-full hidden">
+        <iframe id="pdf-frame" class="pdf-container" src=""></iframe>
+    </div>
+
+    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center m-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
         </div>
+        <h1 class="text-xl font-bold text-slate-800 mb-2">Verification Failure</h1>
+        <p class="text-sm text-gray-500 leading-relaxed">
+            No secure file parameter specified or matching identity missing from target path. Verification void.
+        </p>
     </div>
 
     <script>
@@ -44,8 +60,11 @@
             }
         }
 
-        function verifyAndRedirect() {
+        function verifyAndShowPDF() {
             const errorEl = document.getElementById('error-card');
+            const pdfViewerEl = document.getElementById('pdf-viewer');
+            const pdfFrameEl = document.getElementById('pdf-frame');
+            
             const urlParams = new URLSearchParams(window.location.search);
             const encryptedToken = urlParams.get('t');
 
@@ -53,18 +72,23 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    // কোনো ডাবল-চেক ছাড়াই সরাসরি ফাইল পাথে রিডাইরেক্ট (এর ফলে স্পিড রকেটের মতো হবে)
-                    window.location.replace(`cards/${fileName}.pdf`);
-                    return; // ফাংশন এখানেই শেষ
+                    const filePath = `cards/${fileName}.pdf`;
+
+                    // ১. ইউআরএল রিডাইরেক্ট না করে iframe এর ভেতর ফাইল ঢুকিয়ে দেওয়া হলো
+                    pdfFrameEl.src = filePath;
+                    
+                    // ২. ফুল স্ক্রিন ভিউয়ারটি অন করা হলো
+                    pdfViewerEl.classList.remove('hidden');
+                    return; 
                 }
             }
             
-            // লিংক বা টোকেন ভুল হলে এরর কার্ড দেখাবে
+            // টোকেন বা ফাইল ভুল হলে এরর কার্ড দেখাবে
             errorEl.classList.remove('hidden');
         }
 
-        // DOMContentLoaded এর চেয়েও ফাস্ট কাজ করার জন্য সরাসরি ফাংশন কল করা হলো
-        verifyAndRedirect();
+        // রকেটের মতো ইনস্ট্যান্ট লোড করার জন্য সরাসরি কল করা হলো
+        verifyAndShowPDF();
     </script>
 </body>
 </html>
