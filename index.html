@@ -12,12 +12,14 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: #f0f4f8;
+            background-color: #ffffff;
         }
-        .pdf-container {
+        /* একদম ক্লিন ও বর্ডারলেস ভিউয়ার */
+        .clean-viewer {
             width: 100%;
             height: 100%;
             border: none;
+            display: block;
         }
         .error-card { 
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); 
@@ -26,8 +28,10 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <div id="pdf-viewer" class="w-full h-full hidden">
-        <iframe id="pdf-frame" class="pdf-container" src=""></iframe>
+    <div id="pdf-container" class="w-full h-full hidden">
+        <object id="pdf-object" class="clean-viewer" data="" type="application/pdf">
+            <iframe id="pdf-iframe" class="clean-viewer" src=""></iframe>
+        </object>
     </div>
 
     <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center m-4">
@@ -59,10 +63,11 @@
             }
         }
 
-        function verifyAndShowPDF() {
+        function verifyAndRender() {
             const errorEl = document.getElementById('error-card');
-            const pdfViewerEl = document.getElementById('pdf-viewer');
-            const pdfFrameEl = document.getElementById('pdf-frame');
+            const containerEl = document.getElementById('pdf-container');
+            const objectEl = document.getElementById('pdf-object');
+            const iframeEl = document.getElementById('pdf-iframe');
             
             const urlParams = new URLSearchParams(window.location.search);
             const encryptedToken = urlParams.get('t');
@@ -71,25 +76,25 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    // আপনার লাইভ সাইটের ফুল ডিরেক্টরি পাথ তৈরি করা হচ্ছে
-                    const fullSiteUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-                    const fileFullPath = `${fullSiteUrl}cards/${fileName}.pdf`;
+                    // ডিরেক্টরি পাথ তৈরি (#toolbar=0 দিলে ব্রাউজারের নিজস্ব মেনুবারও হাইড হয়ে যায়)
+                    const filePath = `cards/${fileName}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
 
-                    // মোবাইলে "Open" বাটন স্কিপ করে সরাসরি প্রিভিউ করানোর জন্য গুগল ড্রাইভ ভিউয়ার ইঞ্জিন ব্যবহার
-                    pdfFrameEl.src = `https://docs.google.com/gview?url=${encodeURIComponent(fileFullPath)}&embedded=true`;
+                    // অবজেক্ট এবং আইফ্রেম দুটিতেই পাথ সেট করা হলো যেন কোনোভাবেই ফেল না করে
+                    objectEl.data = filePath;
+                    iframeEl.src = filePath;
                     
-                    // ফুল স্ক্রিন ভিউয়ারটি অন করা হলো
-                    pdfViewerEl.classList.remove('hidden');
+                    // ভিউয়ার শো করা হলো
+                    containerEl.classList.remove('hidden');
                     return; 
                 }
             }
             
-            // টোকেন বা ফাইল ভুল হলে এরর কার্ড দেখাবে
+            // টোকেন ফেইল করলে এরর দেখাবে
             errorEl.classList.remove('hidden');
         }
 
-        // ইনস্ট্যান্ট লোড করার জন্য সরাসরি কল করা হলো
-        verifyAndShowPDF();
+        // ইনস্ট্যান্ট এক্সিকিউশন
+        verifyAndRender();
     </script>
 </body>
 </html>
