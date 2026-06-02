@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Document Verification Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Smooth transition and custom height handling for mobile */
+        .pdf-container {
+            height: calc(100vh - 180px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <header class="bg-white border-b border-gray-200 shadow-sm py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800 tracking-tight">Document Verification Portal</h1>
+                    <p class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Official Verified Document
+                    </p>
+                </div>
+            </div>
+            
+            <a id="downloadBtn" href="#" download class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2.5 rounded-lg shadow transition duration-200 text-center flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download PDF
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-4 flex-grow flex flex-col justify-center">
+        <div id="statusMessage" class="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-100 my-auto">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p class="text-gray-600 font-medium">Loading verified document, please wait...</p>
+        </div>
+
+        <div id="viewerContainer" class="hidden w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden flex-grow flex flex-col">
+            <div class="bg-gray-100 px-4 py-2 text-xs text-gray-500 border-b border-gray-200 flex justify-between items-center">
+                <span id="docName">Document Preview</span>
+                <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">Secure Connection</span>
+            </div>
+            <iframe id="pdfIframe" class="w-full pdf-container border-none" src=""></iframe>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400">
+        &copy; 2026 Verification System | Powered by GitHub Secure Cloud.
+    </footer>
+
+    <script>
+        // CONFIGURATION: Apnar GitHub repository-r link ekhane din
+        const GITHUB_REPO_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/";
+
+        // URL Parameters reading (e.g., ?file=certificate_101.pdf)
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileName = urlParams.get('file');
+
+        const statusMessage = document.getElementById('statusMessage');
+        const viewerContainer = document.getElementById('viewerContainer');
+        const pdfIframe = document.getElementById('pdfIframe');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const docName = document.getElementById('docName');
+
+        if (fileName) {
+            // Full secure URL creation from GitHub Raw
+            const fullPdfUrl = GITHUB_REPO_URL + fileName;
+
+            // Update Iframe src & Download button link
+            pdfIframe.src = `https://docs.google.com/gview?url=${encodeURIComponent(fullPdfUrl)}&embedded=true`;
+            downloadBtn.href = fullPdfUrl;
+            docName.innerText = fileName;
+
+            // Hide loading spinner and show preview
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+                viewerContainer.classList.remove('hidden');
+            }, 1500); // 1.5s delay to feel official & buffer Google viewer
+        } else {
+            // Error handling if file parameter is missing
+            statusMessage.innerHTML = `
+                <div class="text-red-500 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h2 class="text-lg font-bold text-gray-800">Invalid Request</h2>
+                <p class="text-gray-500 text-sm mt-1">No document identifier found in the verification string.</p>
+            `;
+            downloadBtn.classList.add('opacity-50', 'pointer-events-none');
+        }
+    </script>
+</body>
+</html>
