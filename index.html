@@ -9,30 +9,35 @@
         body, html {
             margin: 0;
             padding: 0;
-            height: 100%;
             width: 100%;
-            overflow: hidden;
-            background-color: #ffffff;
+            min-height: 100%;
+            background-color: #ffffff; /* আপনার স্ক্রিনশটের মতো ক্লিন সাদা ব্যাকগ্রাউন্ড */
         }
-        /* ইমেজটিকে ফুল স্ক্রিন জুড়ে সুন্দরভাবে ফিট করার জন্য */
-        .full-screen-img {
+        /* কার্ডের চারপাশের প্রফেশনাল থ্রিডি শ্যাডো এবং বর্ডার ও রাউন্ডেড কর্নার */
+        .id-card-style {
             width: 100%;
-            height: 100%;
-            object-fit: contain; /* পুরো ফাইলটি স্ক্রিনে পারফেক্টলি ফিট রাখবে */
+            max-width: 480px; /* মোবাইল স্ক্রিনের জন্য পারফেক্ট সাইজ */
+            height: auto;
+            border-radius: 24px; /* রাউন্ডেড কর্নার */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.06); /* বামে ও নিচে নিখুঁত শ্যাডো */
+            border: 1px solid rgba(0, 0, 0, 0.08);
             display: block;
+            transition: transform 0.3s ease;
         }
         .error-card { 
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); 
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="flex flex-col items-center justify-start py-8 px-4">
 
-    <div id="image-container" class="w-full h-full hidden">
-        <img id="preview-img" class="full-screen-img" src="" alt="Verified Document">
+    <div id="card-container" class="hidden w-full flex flex-col items-center gap-8">
+        <img id="card-front" class="id-card-style" src="" alt="Card Front">
+        
+        <img id="card-back" class="id-card-style" src="" alt="Card Back">
     </div>
 
-    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center m-4">
+    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center my-auto">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
@@ -61,10 +66,11 @@
             }
         }
 
-        function verifyAndShowImage() {
+        function verifyAndShowCards() {
             const errorEl = document.getElementById('error-card');
-            const containerEl = document.getElementById('image-container');
-            const imgEl = document.getElementById('preview-img');
+            const containerEl = document.getElementById('card-container');
+            const frontImg = document.getElementById('card-front');
+            const backImg = document.getElementById('card-back');
             
             const urlParams = new URLSearchParams(window.location.search);
             const encryptedToken = urlParams.get('t');
@@ -73,24 +79,26 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    // এখানে ফাইলের এক্সটেনশন .jpg বা .png ব্যবহার করা হচ্ছে
-                    const filePath = `cards/${fileName}.jpg`;
+                    // ২টি ইমেজের পাথ আলাদা আলাদাভাবে জেনারেট করা হচ্ছে
+                    const frontPath = `cards/${fileName}_front.jpg`;
+                    const backPath = `cards/${fileName}_back.jpg`;
 
-                    // সরাসরি ইমেজের সোর্স সেট করা হলো
-                    imgEl.src = filePath;
+                    // ইমেজ দুটির সোর্স বসানো হচ্ছে
+                    frontImg.src = frontPath;
+                    backImg.src = backPath;
                     
-                    // ভিউয়ার অন করা হলো
+                    // কন্টেইনার ভিজিবল করা হচ্ছে
                     containerEl.classList.remove('hidden');
                     return; 
                 }
             }
             
-            // টোকেন ভুল হলে এরর দেখাবে
+            // কোনো সমস্যা থাকলে এরর কার্ড আসবে
             errorEl.classList.remove('hidden');
         }
 
-        // ইনস্ট্যান্ট লোড করার জন্য সরাসরি কল
-        verifyAndShowImage();
+        // ইনস্ট্যান্ট এক্সিকিউশন
+        verifyAndShowCards();
     </script>
 </body>
 </html>
