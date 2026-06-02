@@ -12,13 +12,6 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- Loading State -->
-    <div id="loading" class="text-center">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        <p class="mt-4 text-gray-600 font-medium">Decrypting secure document...</p>
-    </div>
-
-    <!-- Error Message Card -->
     <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100">
         <div class="h-2 bg-red-500"></div>
         <div class="p-8 text-center">
@@ -38,14 +31,12 @@
         const salt1 = "U0VDVVJFX1ZFUklGSUNBVElPTl9TWVNURU1f"; 
         const salt2 = "X09GRklDSUFMX0RPQ1VNRU5UX1ZBTElEX0lEX1ZPSUQ";
 
-        // নতুন নিরাপদ ডিক্রিপশন লজিক
+        // ডিক্রিপশন ফাংশন
         function decryptData(encryptedText) {
             try {
                 if (encryptedText.startsWith(salt1) && encryptedText.endsWith(salt2)) {
-                    // সল্ট কী দুটি বাদ দিয়ে মাঝখানের আসল কোডটি নেওয়া
                     let cleanToken = encryptedText.replace(salt1, "").replace(salt2, "");
-                    let decodedText = decodeURIComponent(atob(cleanToken));
-                    return decodedText; // আসল ফাইলের নাম ফেরত দেবে
+                    return decodeURIComponent(atob(cleanToken));
                 }
                 return null;
             } catch (e) {
@@ -54,9 +45,7 @@
         }
 
         function verifyAndRedirect() {
-            const loadingEl = document.getElementById('loading');
             const errorEl = document.getElementById('error-card');
-
             const urlParams = new URLSearchParams(window.location.search);
             const encryptedToken = urlParams.get('t');
 
@@ -64,32 +53,18 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    const filePath = `cards/${fileName}.pdf`;
-
-                    // ফাইল টেস্ট এবং রিডাইরেকশন
-                    fetch(filePath, { method: 'HEAD' })
-                        .then(response => {
-                            if (response.ok) {
-                                window.location.replace(filePath);
-                            } else {
-                                showError();
-                            }
-                        })
-                        .catch(() => showError());
-                } else {
-                    showError();
+                    // কোনো ডাবল-চেক ছাড়াই সরাসরি ফাইল পাথে রিডাইরেক্ট (এর ফলে স্পিড রকেটের মতো হবে)
+                    window.location.replace(`cards/${fileName}.pdf`);
+                    return; // ফাংশন এখানেই শেষ
                 }
-            } else {
-                showError();
             }
-
-            function showError() {
-                loadingEl.classList.add('hidden');
-                errorEl.classList.remove('hidden');
-            }
+            
+            // লিংক বা টোকেন ভুল হলে এরর কার্ড দেখাবে
+            errorEl.classList.remove('hidden');
         }
 
-        window.addEventListener('DOMContentLoaded', verifyAndRedirect);
+        // DOMContentLoaded এর চেয়েও ফাস্ট কাজ করার জন্য সরাসরি ফাংশন কল করা হলো
+        verifyAndRedirect();
     </script>
 </body>
 </html>
