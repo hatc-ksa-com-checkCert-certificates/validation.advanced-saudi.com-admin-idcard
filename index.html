@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Official Document Verification</title>
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        body {
-            background-color: #f0f4f8;
-        }
-        .error-card {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
+        body { background-color: #f0f4f8; }
+        .error-card { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -20,10 +15,10 @@
     <!-- Loading State -->
     <div id="loading" class="text-center">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        <p class="mt-4 text-gray-600 font-medium">Verifying document security...</p>
+        <p class="mt-4 text-gray-600 font-medium">Decrypting secure document...</p>
     </div>
 
-    <!-- Error Message Card (Hidden by default) -->
+    <!-- Error Message Card -->
     <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100">
         <div class="h-2 bg-red-500"></div>
         <div class="p-8 text-center">
@@ -40,32 +35,51 @@
     </div>
 
     <script>
+        const salt1 = "U0VDVVJFX1ZFUklGSUNBVElPTl9TWVNURU1f"; 
+        const salt2 = "X09GRklDSUFMX0RPQ1VNRU5UX1ZBTElEX0lEX1ZPSUQ";
+
+        // নতুন নিরাপদ ডিক্রিপশন লজিক
+        function decryptData(encryptedText) {
+            try {
+                if (encryptedText.startsWith(salt1) && encryptedText.endsWith(salt2)) {
+                    // সল্ট কী দুটি বাদ দিয়ে মাঝখানের আসল কোডটি নেওয়া
+                    let cleanToken = encryptedText.replace(salt1, "").replace(salt2, "");
+                    let decodedText = decodeURIComponent(atob(cleanToken));
+                    return decodedText; // আসল ফাইলের নাম ফেরত দেবে
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         function verifyAndRedirect() {
             const loadingEl = document.getElementById('loading');
             const errorEl = document.getElementById('error-card');
 
-            // ১. URL থেকে 't' প্যারামিটার (ফাইলের নাম) নেওয়া
             const urlParams = new URLSearchParams(window.location.search);
-            const fileName = urlParams.get('t');
+            const encryptedToken = urlParams.get('t');
 
-            if (fileName) {
-                // ২. cards ফোল্ডারের ভেতরের ফাইলের পাথ তৈরি করা (.pdf এক্সটেনশন সহ)
-                const filePath = `cards/${fileName}.pdf`;
+            if (encryptedToken) {
+                const fileName = decryptData(encryptedToken);
 
-                // ৩. ফাইলটি আসলেও cards ফোল্ডারে আপলোড করা হয়েছে কিনা চেক করা
-                fetch(filePath, { method: 'HEAD' })
-                    .then(response => {
-                        if (response.ok) {
-                            // ফাইল থাকলে সরাসরি ওপেন হবে
-                            window.location.replace(filePath);
-                        } else {
-                            // ফাইল না থাকলে এরর দেখাবে
-                            showError();
-                        }
-                    })
-                    .catch(() => showError());
+                if (fileName) {
+                    const filePath = `cards/${fileName}.pdf`;
+
+                    // ফাইল টেস্ট এবং রিডাইরেকশন
+                    fetch(filePath, { method: 'HEAD' })
+                        .then(response => {
+                            if (response.ok) {
+                                window.location.replace(filePath);
+                            } else {
+                                showError();
+                            }
+                        })
+                        .catch(() => showError());
+                } else {
+                    showError();
+                }
             } else {
-                // ইউআরএল-এ 't' প্যারামিটার না থাকলে এরর দেখাবে
                 showError();
             }
 
@@ -75,7 +89,6 @@
             }
         }
 
-        // পেজ লোড হলে রান করবে
         window.addEventListener('DOMContentLoaded', verifyAndRedirect);
     </script>
 </body>
