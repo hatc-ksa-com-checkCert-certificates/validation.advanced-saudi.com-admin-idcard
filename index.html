@@ -11,30 +11,34 @@
             padding: 0;
             width: 100%;
             min-height: 100%;
-            background-color: #ffffff; /* একদম পরিষ্কার সাদা ব্যাকগ্রাউন্ড */
+            background-color: #ffffff; /* ক্লিন সাদা ব্যাকগ্রাউন্ড */
         }
         
-        /* আপনার চাহিদা অনুযায়ী ওপরের এবং দুই পাশের ফাঁকা জায়গা একদম পারফেক্ট করা হয়েছে */
+        /* আপনার দেওয়া ইমেজের দূরত্ব ও লেআউটের সাথে ১০০% ম্যাচ করা কন্টেইনার */
         .page-wrapper {
             width: 100%;
-            padding-top: 5vh; /* ওপর থেকে হালকা ও সুন্দর ৫% জায়গা খালি */
-            padding-left: 11vw; /* বাম পাশে পারফেক্ট ৮% জায়গা খালি */
-            padding-right: 11vw; /* ডান পাশে পারফেক্ট ৮% জায়গা খালি */
-            padding-bottom: 5vh; /* নিচেও সামঞ্জস্যপূর্ণ গ্যাপ */
+            padding-top: 25px;    /* উপর থেকে নিখুঁত দূরত্ব */
+            padding-bottom: 40px; /* নিচের স্পেসিং */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* দুটি কার্ডের মাঝখানের গ্যাপ আপনার ইমেজের সমান করা হয়েছে */
+            gap: 22px; 
             box-sizing: border-box;
         }
 
-        /* কার্ডের স্টাইল: স্পষ্ট থ্রিডি শ্যাডো এবং রাউন্ডেড কর্নার */
+        /* কার্ডের ডিজাইন: ইমেজের মতো সলিড গাঢ় শ্যাডো এবং কর্নার রাউন্ড */
         .id-card-style {
-            width: 100%; /* দুপাশের ৮% বাদে বাকি পুরো জায়গা জুড়ে সুন্দরভাবে থাকবে */
+            width: 91%; /* দুই পাশে হালকা ফাঁকা রেখে স্ক্রিনে বড় দেখাবে */
+            max-width: 440px; 
             height: auto;
-            border-radius: 18px; /* নিখুঁত রাউন্ডেড কর্নার */
+            border-radius: 18px; /* নিখুঁত রাউন্ড কর্নার */
             
-            /* আপনার রিকোয়ারমেন্ট অনুযায়ী অত্যন্ত স্পষ্ট ও গাঢ় থ্রিডি শ্যাডো */
-            box-shadow: -10px 15px 22px rgba(0, 0, 0, 0.48), 
-                        -3px 5px 10px rgba(0, 0, 0, 0.45);
+            /* আপনার ইমেজ অনুযায়ী: বামে ও নিচে স্পষ্ট, গাঢ় এবং সলিড থ্রিডি শ্যাডো */
+            box-shadow: -8px 10px 0px rgba(0, 0, 0, 0.18), 
+                        -4px 5px 8px rgba(0, 0, 0, 0.12);
             
-            border: 1px solid rgba(0, 0, 0, 0.1); /* বর্ডার */
+            border: 1px solid rgba(0, 0, 0, 0.08);
             display: block;
         }
 
@@ -45,7 +49,7 @@
 </head>
 <body class="flex flex-col items-center justify-start">
 
-    <div id="card-container" class="hidden page-wrapper flex flex-col items-center gap-8">
+    <div id="card-container" class="hidden page-wrapper">
         <img id="card-front" class="id-card-style" alt="Card Front">
         
         <img id="card-back" class="id-card-style" alt="Card Back">
@@ -53,7 +57,7 @@
 
     <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center my-auto m-4">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/xl" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
         </div>
@@ -79,7 +83,7 @@
             }
         }
 
-        // অটোমেটিক এক্সটেনশন চেকার মেথড
+        // অটোমেটিক এক্সটেনশন চেকার
         function tryLoadingImage(imgElement, baseName, suffix) {
             const extensions = ['jpg', 'png', 'jpeg', 'JPG', 'PNG'];
             let index = 0;
