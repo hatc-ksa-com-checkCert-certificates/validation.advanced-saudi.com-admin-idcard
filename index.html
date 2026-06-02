@@ -14,7 +14,6 @@
             overflow: hidden;
             background-color: #f0f4f8;
         }
-        /* PDF ভিউয়ারটি পুরো স্ক্রিন জুড়ে রাখার জন্য */
         .pdf-container {
             width: 100%;
             height: 100%;
@@ -72,12 +71,14 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    const filePath = `cards/${fileName}.pdf`;
+                    // আপনার লাইভ সাইটের ফুল ডিরেক্টরি পাথ তৈরি করা হচ্ছে
+                    const fullSiteUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+                    const fileFullPath = `${fullSiteUrl}cards/${fileName}.pdf`;
 
-                    // ১. ইউআরএল রিডাইরেক্ট না করে iframe এর ভেতর ফাইল ঢুকিয়ে দেওয়া হলো
-                    pdfFrameEl.src = filePath;
+                    // মোবাইলে "Open" বাটন স্কিপ করে সরাসরি প্রিভিউ করানোর জন্য গুগল ড্রাইভ ভিউয়ার ইঞ্জিন ব্যবহার
+                    pdfFrameEl.src = `https://docs.google.com/gview?url=${encodeURIComponent(fileFullPath)}&embedded=true`;
                     
-                    // ২. ফুল স্ক্রিন ভিউয়ারটি অন করা হলো
+                    // ফুল স্ক্রিন ভিউয়ারটি অন করা হলো
                     pdfViewerEl.classList.remove('hidden');
                     return; 
                 }
@@ -87,7 +88,7 @@
             errorEl.classList.remove('hidden');
         }
 
-        // রকেটের মতো ইনস্ট্যান্ট লোড করার জন্য সরাসরি কল করা হলো
+        // ইনস্ট্যান্ট লোড করার জন্য সরাসরি কল করা হলো
         verifyAndShowPDF();
     </script>
 </body>
