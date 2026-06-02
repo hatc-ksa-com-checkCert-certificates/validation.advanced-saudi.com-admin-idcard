@@ -11,30 +11,29 @@
             padding: 0;
             width: 100%;
             min-height: 100%;
-            background-color: #ffffff; /* আপনার স্ক্রিনশটের মতো ক্লিন সাদা ব্যাকগ্রাউন্ড */
+            background-color: #ffffff;
         }
-        /* কার্ডের চারপাশের প্রফেশনাল থ্রিডি শ্যাডো এবং বর্ডার ও রাউন্ডেড কর্নার */
+        /* কার্ডের চারপাশের নিখুঁত থ্রিডি ড্রপ শ্যাডো ও রাউন্ডেড কর্নার */
         .id-card-style {
             width: 100%;
-            max-width: 480px; /* মোবাইল স্ক্রিনের জন্য পারফেক্ট সাইজ */
+            max-width: 480px;
             height: auto;
-            border-radius: 24px; /* রাউন্ডেড কর্নার */
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.06); /* বামে ও নিচে নিখুঁত শ্যাডো */
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             display: block;
-            transition: transform 0.3s ease;
         }
         .error-card { 
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); 
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-start py-8 px-4">
+<body class="flex flex-col items-center justify-start py-10 px-4">
 
-    <div id="card-container" class="hidden w-full flex flex-col items-center gap-8">
-        <img id="card-front" class="id-card-style" src="" alt="Card Front">
+    <div id="card-container" class="hidden w-full flex flex-col items-center gap-10">
+        <img id="card-front" class="id-card-style" alt="Card Front">
         
-        <img id="card-back" class="id-card-style" src="" alt="Card Back">
+        <img id="card-back" class="id-card-style" alt="Card Back">
     </div>
 
     <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100 p-8 text-center my-auto">
@@ -53,7 +52,6 @@
         const salt1 = "U0VDVVJFX1ZFUklGSUNBVElPTl9TWVNURU1f"; 
         const salt2 = "X09GRklDSUFMX0RPQ1VNRU5UX1ZBTElEX0lEX1ZPSUQ";
 
-        // ডিক্রিপশন ফাংশন
         function decryptData(encryptedText) {
             try {
                 if (encryptedText.startsWith(salt1) && encryptedText.endsWith(salt2)) {
@@ -64,6 +62,23 @@
             } catch (e) {
                 return null;
             }
+        }
+
+        // এক্সটেনশন ভুল হলেও ইমেজ লোড করানোর অটো-ডিটেক্ট মেথড
+        function tryLoadingImage(imgElement, baseName, suffix) {
+            const extensions = ['jpg', 'png', 'jpeg', 'JPG', 'PNG'];
+            let index = 0;
+
+            function tryNext() {
+                if (index < extensions.length) {
+                    imgElement.src = `cards/${baseName}_${suffix}.${extensions[index]}`;
+                    index++;
+                }
+            }
+
+            // যদি কোনো এক্সটেনশনে ইমেজ না পায়, তবে পরের এক্সটেনশন ট্রাই করবে
+            imgElement.onerror = tryNext;
+            tryNext();
         }
 
         function verifyAndShowCards() {
@@ -79,25 +94,18 @@
                 const fileName = decryptData(encryptedToken);
 
                 if (fileName) {
-                    // ২টি ইমেজের পাথ আলাদা আলাদাভাবে জেনারেট করা হচ্ছে
-                    const frontPath = `cards/${fileName}_front.jpg`;
-                    const backPath = `cards/${fileName}_back.jpg`;
-
-                    // ইমেজ দুটির সোর্স বসানো হচ্ছে
-                    frontImg.src = frontPath;
-                    backImg.src = backPath;
+                    // ফ্রন্ট এবং ব্যাক পেজের ছবি খোঁজা শুরু করা হচ্ছে
+                    tryLoadingImage(frontImg, fileName, 'front');
+                    tryLoadingImage(backImg, fileName, 'back');
                     
-                    // কন্টেইনার ভিজিবল করা হচ্ছে
                     containerEl.classList.remove('hidden');
                     return; 
                 }
             }
             
-            // কোনো সমস্যা থাকলে এরর কার্ড আসবে
             errorEl.classList.remove('hidden');
         }
 
-        // ইনস্ট্যান্ট এক্সিকিউশন
         verifyAndShowCards();
     </script>
 </body>
