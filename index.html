@@ -3,157 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Official Document Secure Preview</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>Official Document Verification</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        :root {
-            --primary-color: #0b3954;
-            --accent-color: #008080;
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        body {
+            background-color: #f0f4f8;
         }
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-gradient);
-            overflow: hidden; /* Desktop/mobile scrolling bound within iframe */
-        }
-
-        /* Loading and Error View Wrapper */
-        .status-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 10;
-            box-sizing: border-box;
-            padding: 20px;
-        }
-
-        .status-card {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-            padding: 40px 30px;
-            text-align: center;
-            border-top: 8px solid var(--primary-color);
-        }
-
-        .spinner {
-            font-size: 48px;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            animation: spin 1.5s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .status-card h2 {
-            color: var(--primary-color);
-            margin: 10px 0;
-            font-size: 20px;
-        }
-
-        .status-card p {
-            color: #666666;
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 0;
-        }
-
-        /* Error UI Specific */
         .error-card {
-            border-top-color: #d9534f;
-        }
-        .error-icon {
-            font-size: 48px;
-            color: #d9534f;
-            margin-bottom: 20px;
-        }
-
-        /* Fullscreen Secure PDF Iframe View */
-        .preview-container {
-            width: 100%;
-            height: 100%;
-            border: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 5;
-            display: none; /* Auto revealed after check */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="statusScreen" class="status-wrapper">
-        <div id="statusCard" class="status-card">
-            <div id="statusIcon" class="spinner"><i class="fa-solid fa-circle-notch"></i></div>
-            <h2 id="statusTitle">Verifying Document</h2>
-            <p id="statusDesc">Please wait while the system fetches the secure certificate preview...</p>
+    <!-- Loading State -->
+    <div id="loading" class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+        <p class="mt-4 text-gray-600 font-medium">Verifying document security...</p>
+    </div>
+
+    <!-- Error Message Card (Hidden by default) -->
+    <div id="error-card" class="error-card hidden max-w-md w-full bg-white rounded-2xl overflow-hidden border border-gray-100">
+        <div class="h-2 bg-red-500"></div>
+        <div class="p-8 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-500 rounded-full mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-slate-800 mb-2">Verification Failure</h1>
+            <p class="text-sm text-gray-500 leading-relaxed">
+                No secure file parameter specified or matching identity missing from target path. Verification void.
+            </p>
         </div>
     </div>
 
-    <iframe id="pdfViewer" class="preview-container" src=""></iframe>
+    <script>
+        function verifyAndRedirect() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error-card');
 
-<script>
-    // CONFIGURATION: Ekhane apnar main GitHub raw repository path-ti secure-vabe diye din
-    // Sheshe obosshoi ekta forward slash (/) thakbe.
-    const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/naimehasan/my-jmc-portal/main/";
+            // ১. URL থেকে 't' প্যারামিটার (ফাইলের নাম) নেওয়া
+            const urlParams = new URLSearchParams(window.location.search);
+            const fileName = urlParams.get('t');
 
-    // URL theke '?file=filename.pdf' parameter reading function
-    function getUrlParameter(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
+            if (fileName) {
+                // ২. cards ফোল্ডারের ভেতরের ফাইলের পাথ তৈরি করা (.pdf এক্সটেনশন সহ)
+                const filePath = `cards/${fileName}.pdf`;
 
-    window.onload = function() {
-        const targetFile = getUrlParameter('file');
-        
-        const statusScreen = document.getElementById('statusScreen');
-        const statusCard = document.getElementById('statusCard');
-        const statusIcon = document.getElementById('statusIcon');
-        const statusTitle = document.getElementById('statusTitle');
-        const statusDesc = document.getElementById('statusDesc');
-        const pdfViewer = document.getElementById('pdfViewer');
+                // ৩. ফাইলটি আসলেও cards ফোল্ডারে আপলোড করা হয়েছে কিনা চেক করা
+                fetch(filePath, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            // ফাইল থাকলে সরাসরি ওপেন হবে
+                            window.location.replace(filePath);
+                        } else {
+                            // ফাইল না থাকলে এরর দেখাবে
+                            showError();
+                        }
+                    })
+                    .catch(() => showError());
+            } else {
+                // ইউআরএল-এ 't' প্যারামিটার না থাকলে এরর দেখাবে
+                showError();
+            }
 
-        if (targetFile && targetFile.trim() !== "") {
-            // Document path combine kora
-            const targetPdfUrl = GITHUB_RAW_BASE + targetFile.trim();
-
-            // Mobile o desktop rendering framework logic ensuring no structural overflow
-            // Encoded dynamic Google Viewer frame dynamically embedding the target location
-            pdfViewer.src = `https://docs.google.com/gview?url=${encodeURIComponent(targetPdfUrl)}&embedded=true`;
-
-            // Frame processing time logic context
-            setTimeout(() => {
-                statusScreen.style.display = "none"; // Hide standard loading
-                pdfViewer.style.display = "block";   // Show fullscreen PDF renderer
-            }, 1200);
-
-        } else {
-            // URL framework filtering failed handling logic (Token/parameter invalid handle)
-            statusCard.classList.add('error-card');
-            statusIcon.className = "error-icon";
-            statusIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-            statusTitle.innerText = "Verification Failure";
-            statusDesc.innerText = "No secure file parameter specified or matching identity missing from target path. Verification void.";
+            function showError() {
+                loadingEl.classList.add('hidden');
+                errorEl.classList.remove('hidden');
+            }
         }
-    }
-</script>
 
+        // পেজ লোড হলে রান করবে
+        window.addEventListener('DOMContentLoaded', verifyAndRedirect);
+    </script>
 </body>
 </html>
